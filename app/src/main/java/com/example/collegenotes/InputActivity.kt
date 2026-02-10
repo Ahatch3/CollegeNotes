@@ -1,6 +1,7 @@
 package com.example.collegenotes
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -8,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.firestore.FirebaseFirestore
 
 class InputActivity : AppCompatActivity() {
 
@@ -23,5 +25,21 @@ class InputActivity : AppCompatActivity() {
             val text = input.text.toString()
             output.text = text
         }
+
+        val db = FirebaseFirestore.getInstance()
+
+
+        val test = hashMapOf(
+            "message" to "Firestore connected"
+        )
+
+        db.collection("connection_test")
+            .add(test)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Success")
+            }
+            .addOnFailureListener {
+                Log.e("Firestore", "Failure", it)
+            }
     }
 }
