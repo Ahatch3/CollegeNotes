@@ -12,10 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CollegeNotes">
         <activity
-            android:name=".InputActivity"
+            android:name=".NoteSelectorScreen"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ClassFolderScreen"
+            android:exported="false" />
+        <activity
+            android:name=".NoteEditorScreen"
+            android:exported="false" />
+        <activity
+            android:name=".IntroLoadScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
