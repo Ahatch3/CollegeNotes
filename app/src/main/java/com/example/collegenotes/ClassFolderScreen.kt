@@ -3,6 +3,7 @@ package com.example.collegenotes
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -10,6 +11,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,6 +27,20 @@ class ClassFolderScreen : AppCompatActivity() {
             insets
         }
 
+        val toolbar = findViewById<Toolbar>(R.id.toolbarEdit)
+        setSupportActionBar(toolbar)
+
+        toolbar.setNavigationOnClickListener {
+             // go back to the previous activity
+        }
+
+        fun onOptionsItemSelected(item: MenuItem): Boolean {
+            if (item.itemId == android.R.id.home) {
+                onBackPressed() // or finish() if you prefer
+                return true
+            }
+            return super.onOptionsItemSelected(item)
+        }
 
 
         val container = findViewById<LinearLayout>(R.id.classContainer)
@@ -37,6 +53,7 @@ class ClassFolderScreen : AppCompatActivity() {
                     for (doc in documents){
                         val className = doc.getString("name") ?: "Untitled Class"
                         val classCode = doc.getString("code") ?: "--"
+                        val classId = doc.id
 
                         val item = layoutInflater.inflate(R.layout.item_class, container, false)
 
@@ -48,7 +65,29 @@ class ClassFolderScreen : AppCompatActivity() {
                         item.setOnClickListener {
                             val intent = Intent(this, NoteSelectorScreen::class.java)
                             intent.putExtra("CLASS_NAME", className)
+                            intent.putExtra("CLASS_ID", classId)
                             startActivity(intent)
+                        }
+                        item.setOnLongClickListener {
+                            AlertDialog.Builder(this)
+                                .setTitle("Delete Note?")
+                                .setMessage("Are you sure you want to delete this note?")
+                                .setPositiveButton("Confirm") { dialog, _ ->
+                                    val db = FirebaseFirestore.getInstance()
+                                    db.collection("classes").document(classId)
+                                        .delete()
+                                        .addOnSuccessListener {
+                                            Log.d("FIRESTORE", "Note deleted successfully!")
+                                            container.removeView(item) // remove from UI immediately
+                                        }
+                                        .addOnFailureListener {
+                                            Log.d("FIRESTORE", "Failed to delete note...")
+                                        }
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+
+                            true // return true to indicate the long-click is handled
                         }
                         container.addView(item)
                     }
@@ -67,7 +106,28 @@ class ClassFolderScreen : AppCompatActivity() {
                 intent.putExtra("CLASS_NAME", className)
                 startActivity(intent)
             }
+            item.setOnLongClickListener { doc ->
+                val classId: String = doc.id.toString()
+                AlertDialog.Builder(this)
+                    .setTitle("Delete Note?")
+                    .setMessage("Are you sure you want to delete this note?")
+                    .setPositiveButton("Confirm") { dialog, _ ->
+                        val db = FirebaseFirestore.getInstance()
+                        db.collection("classes").document(classId)
+                            .delete()
+                            .addOnSuccessListener {
+                                Log.d("FIRESTORE", "Note deleted successfully!")
+                                container.removeView(item) // remove from UI immediately
+                            }
+                            .addOnFailureListener {
+                                Log.d("FIRESTORE", "Failed to delete note...")
+                            }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
 
+                true // return true to indicate the long-click is handled
+            }
             container.addView(item)
         }
 

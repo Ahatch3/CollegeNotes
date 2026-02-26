@@ -1,20 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/editorMain"
     android:orientation="vertical"
     android:padding="16dp"
-    android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <EditText
         android:id="@+id/noteTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Note Title"
-        android:textSize="20sp"
+        android:textSize="28sp"
         android:inputType="text"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:paddingTop="10pt"/>
 
     <EditText
         android:id="@+id/noteContent"

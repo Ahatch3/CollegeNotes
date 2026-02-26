@@ -3,10 +3,12 @@ package com.example.collegenotes
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -25,11 +27,32 @@ class NoteSelectorScreen : AppCompatActivity() {
             insets
         }
 
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        // Enable the back button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        toolbar.setNavigationOnClickListener {
+            finish() // go back to the previous activity
+        }
+
+        fun onOptionsItemSelected(item: MenuItem): Boolean {
+            if (item.itemId == android.R.id.home) {
+                onBackPressed() // or finish() if you prefer
+                return true
+            }
+            return super.onOptionsItemSelected(item)
+        }
+
 
         val container = findViewById<LinearLayout>(R.id.noteContainer)
+        val classId = intent.getStringExtra("CLASS_ID")
         val db = FirebaseFirestore.getInstance()
 
         db.collection("notes")
+            .whereEqualTo("classId", classId)
             .get()
             .addOnSuccessListener{
                     documents ->
@@ -49,23 +72,65 @@ class NoteSelectorScreen : AppCompatActivity() {
                         intent.putExtra("NOTE_ID", noteId)
                         startActivity(intent)
                     }
+                    item.setOnLongClickListener {
+                        AlertDialog.Builder(this)
+                            .setTitle("Delete Note?")
+                            .setMessage("Are you sure you want to delete this note?")
+                            .setPositiveButton("Confirm") { dialog, _ ->
+                                val db = FirebaseFirestore.getInstance()
+                                db.collection("notes").document(noteId)
+                                    .delete()
+                                    .addOnSuccessListener {
+                                        Log.d("FIRESTORE", "Note deleted successfully!")
+                                        container.removeView(item) // remove from UI immediately
+                                    }
+                                    .addOnFailureListener {
+                                        Log.d("FIRESTORE", "Failed to delete note...")
+                                    }
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+
+                        true // return true to indicate the long-click is handled
+                    }
                     container.addView(item)
                 }
             }
 
 
-        fun addClassToLayout(noteName: String) {
+        fun addNoteToLayout(noteName: String, noteId: String) {
             val item = layoutInflater.inflate(R.layout.item_note, container, false)
             val titleText = item.findViewById<TextView>(R.id.noteTitleText)
 
             titleText.text = noteName
 
             item.setOnClickListener {
-                val intent = Intent(this, NoteSelectorScreen::class.java)
+                val intent = Intent(this, NoteEditorScreen::class.java)
                 intent.putExtra("NOTE_NAME", noteName)
+                intent.putExtra("NOTE_ID", noteId)
                 startActivity(intent)
             }
+            item.setOnLongClickListener {
+                AlertDialog.Builder(this)
+                    .setTitle("Delete Note?")
+                    .setMessage("Are you sure you want to delete this note?")
+                    .setPositiveButton("Confirm") { dialog, _ ->
+                        val db = FirebaseFirestore.getInstance()
+                        db.collection("notes").document(noteId)
+                            .delete()
+                            .addOnSuccessListener {
+                                Log.d("FIRESTORE", "Note deleted successfully!")
+                                container.removeView(item) // remove from UI immediately
+                            }
+                            .addOnFailureListener {
+                                Log.d("FIRESTORE", "Failed to delete note...")
+                            }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
 
+                true // return true to indicate the long-click is handled
+            }
             container.addView(item)
         }
 
@@ -85,14 +150,16 @@ class NoteSelectorScreen : AppCompatActivity() {
                     if (noteName.isNotBlank()) {
                         val db = FirebaseFirestore.getInstance()
                         val noteFolder = hashMapOf(
-                            "name" to noteName
+                            "title" to noteName,
+                            "classId" to classId,
+                            "timestamp" to System.currentTimeMillis()
                         )
 
                         db.collection("notes")
                             .add(noteFolder)
-                            .addOnSuccessListener {
+                            .addOnSuccessListener { doc ->
                                 Log.d("FIRESTORE", "Class saved successfully!")
-                                addClassToLayout(noteName)
+                                addNoteToLayout(noteName, doc.id)
                             }
                             .addOnFailureListener {
                                 Log.d("FIRESTORE", "Failed saving class...")

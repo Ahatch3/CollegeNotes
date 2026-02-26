@@ -37,7 +37,7 @@ android {
 dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
-
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
