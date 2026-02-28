@@ -144,7 +144,7 @@ class ClassFolderScreen : AppCompatActivity() {
                 .setView(dialogView)
                 .setPositiveButton("Add") {dialog, _ ->
                     val className = classNameInput.text.toString()
-                    val classCode = classNameInput.text.toString().ifBlank { "--" }
+                    val classCode = classCodeInput.text.toString().ifBlank { "--" }
 
                     if (className.isNotBlank()) {
                         val db = FirebaseFirestore.getInstance()
