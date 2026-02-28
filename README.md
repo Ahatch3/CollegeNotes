@@ -1,4 +1,4 @@
-# Mobile Apps Sprint
+# Cloud Databases Sprint
 
 It's just a super simplified note taking platform.
 
@@ -12,7 +12,9 @@ Steps to build and/or run the software:
 Instructions for using the software:
 
 1. Tap the first page to go into the app
-2. Type things you want to remember into the main screen, and then it will be displayed below
+2. Navigate and drill down to the note you want to view or edit by clicking on the names
+3. Edit and click 'Save' to write to the database
+4. Click and hold on any item name to be able to delete it.
 
 ## Development Environment
 
@@ -24,6 +26,6 @@ To recreate the development environment, you need the following software and/or 
 
 The following items I plan to fix, improve, and/or add to this project in the future:
 
-* [ ] I want to make it so I can have folders with multiple note pages below
-* [ ] I want it to be able to save the information I put in it so I can view it the next time I open it
+
 * [ ] I want the main load in screen to look way fancier and very streamlined in it's appearance.
+* [ ] I want to find a way to authenticate and connect multiple users, potentially at the same time. 
